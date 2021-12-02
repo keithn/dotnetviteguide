@@ -39,7 +39,7 @@ In previous .NET versions ( before .NET 6 ) dotnet projects setup a proxy from t
 
 So now, Spa Proxy isn't so much of a proxy, it is a SpaLauncher, the main guts you can find here:
 
-[https://github.com/dotnet/aspnetcore/blob/main/src/Middleware/Spa/SpaProxy/src/SpaProxyLaunchManager.cs]
+https://github.com/dotnet/aspnetcore/blob/main/src/Middleware/Spa/SpaProxy/src/SpaProxyLaunchManager.cs
 
 It is pretty simple and will help you understnad what it is trying to do.
 
@@ -51,7 +51,32 @@ More annoyingly, it force kills it when your program ends.  It provides no optio
 
 However, we will setup the project to correctly run the SpaProxy (ie, launcher) properly
 
-### Configure
+### Remove the ClientApp folder
+
+Under your newly created .NET 6 project, it will have a ClientApp folder. This has all the react code in it.  Kill it. Delete it.
+
+### Create your Vue3 project with Vite
+
+In the main project folder  (where the csproj file is), run the following command to create vite project (or whatever tooling you want to use, as long as it makes a subfolder off the main project folder)
+
+```yarn create vite```
+
+It will ask you for the project name, this will be the name of the folder it creates, choose something you like, or you can call it ClientApp, which means you need to configure a bit less later.
+
+Select the options you want. 
+
+In my case ```vue -> vue-ts```
+
+change into the directory, and type
+
+```yarn``` to install dependencies ( or let your dev tools do it if they know how )
+
+You can treat this project like a normal vue3 / vite project and set it up however you like.  We will have to configure some options for vite which we will discuss a little later in the guide.
+
+
+### Configure the .NET 6 Project
+
+Now we have the vite project 
 
 Open your project file, and it will have a section something like 
 
