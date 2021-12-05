@@ -19,9 +19,9 @@ While you can all kinds of different editors and tools and operating systems, fo
 
 
 
-## Let's go!
+# Let's go!
 
-### Create .NET Project
+## Create .NET Project
 
 There are a number of templates that you could use, but for this guide use the react template
 
@@ -33,7 +33,7 @@ in Rider
 
 This project will give you a good starting point and will setup the SPA Proxy
 
-### Small overview of SPA Proxy
+## Small overview of SPA Proxy
 
 In previous .NET versions ( before .NET 6 ) dotnet projects setup a proxy from the .NET webserver to your frontened project (whether it be Vue, React, Angular or other ).  I never used this as it was silliness, I always manually setup the proxy the other way round, so proxy from my Vue app to the .NET API backend.  Thankfully, in .NET 6 this is the approach they now also use.
 
@@ -51,11 +51,11 @@ More annoyingly, it force kills it when your program ends.  It provides no optio
 
 However, we will setup the project to correctly run the SpaProxy (ie, launcher) properly
 
-### Remove the ClientApp folder
+## Remove the ClientApp folder
 
 Under your newly created .NET 6 project, it will have a ClientApp folder. This has all the react code in it.  Kill it. Delete it.
 
-### Create your Vue3 project with Vite
+## Create your Vue3 project with Vite
 
 In the main project folder  (where the csproj file is), run the following command to create vite project (or whatever tooling you want to use, as long as it makes a subfolder off the main project folder)
 
@@ -74,11 +74,27 @@ change into the directory, and type
 You can treat this project like a normal vue3 / vite project and set it up however you like.  We will have to configure some options for vite which we will discuss a little later in the guide.
 
 
-### Configure the .NET 6 Project
+## Configure the .NET 6 Project
 
-Now we have the vite project 
+Now we have the vite project we need to make some changes to the .NET 6 project
 
-Open your project file, and it will have a section something like 
+Choose a port you want to run your vite vue project on ( I tend to choose a unique port per project), in this case port 3399
+
+```XML
+ <SpaProxyServerUrl>https://localhost:3399</SpaProxyServerUrl>
+ ```
+ 
+ set the launch command for dev mode, in this case ```yarn dev```
+ ```XML
+ <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
+ ```
+ 
+ If you have a different name for your project folder rather than "ClientApp" specify it in the SpaRoot
+ ```XML
+ <SpaRoot>ClientApp\</SpaRoot>
+ ```
+ 
+ Which should result in a project file something like below
 
 ```XML
     <PropertyGroup>
@@ -95,11 +111,105 @@ Open your project file, and it will have a section something like
     </PropertyGroup>
 ```
 
------ TO BE CONTINUED :)
+## Certificate for your Vue Project
+
+By default we generally want to use https for everything, so for your vite project we can use "makecert"  https://github.com/liuweiGL/vite-plugin-mkcert
+
+```
+yarn add vite-plugin-mkcert -D
+```
+
+and configure it like so
+
+```
+import mkcert from 'vite-plugin-mkcert'
+
+export default defineConfig({
+  plugins: [vue(), mkcert()],
+  server: {
+    https: true
+      ... rest of config
+  }
+});
+```
 
 
 
-### Certificate for your Vue Project
+
+
+## Proxy from Vue to .NET Api
+
+Now lets setup the proxy
+
+use the same port you choose back when editing the project, in this case 3399
+
+```strictPort``` means it won't try another port if it finds the port already in use.  
+
+I suggest nesting all api calls under the route ```/api``` which makes it easy to work out whatt things to proxy. However, if you want to, you can rewrite the routing to the backend.  You mostly don't want to do this, otherwise in production you will end up with different routes and the two projects won't marry together without some other kind of config to set the correct routes.  However, I include the rewrite in the example below for reference ( currently it doesn't change the route at all ), you can omit the rewrite rule altogether if you aren't doing anything fancy.
+
+in the proxy specify the ```target``` as whatever the .NET project has chosen for running the API on.
+
+```secure:false``` just means the proxy won't check certs, as we don't really care for our local setup (though if you've installed the dotnet developer cert, it should be ok).
+
+
+vite.config.ts   (or js if you go with js)
+
+```ts
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import mkcert from 'vite-plugin-mkcert'
+
+export default defineConfig({
+  plugins: [vue(), mkcert()],
+  server: {
+    port: 3399,
+    https: true,
+    strictPort : true,
+    proxy: {
+      '/api' : {
+        target: 'https://localhost:7153',
+        changeOrigin: true,
+        secure:false,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
+      }
+    } 
+  }
+})
+```
+
+### .NET Minimal API and Fetching from vue
+
+In your Programs.cs add a route that returns some test data
+
+```C#
+app.MapGet("api/test", () => new { Test = "hello" });
+```
+
+and in vue, in your App.vue, you can use the following template to test whether you can get the data :-
+
+```vue
+<script setup lang="ts">
+import {onMounted, ref} from "vue";
+
+interface TestData {
+  test: string;
+}
+
+const result = ref<TestData>({test:""})
+onMounted(async () => {
+  result.value = await (await fetch("/api/Test")).json();
+});
+
+</script>
+
+<template>
+  <div class="">Result: {{ result.test }}</div>
+</template>
+
+<style>
+</style>
+```
+
 
 ### Windows 11 / Windows Terminal 
 
@@ -110,7 +220,12 @@ By default ( at time of writing ), terminal does not automatically close.  Howev
 Otherwise it will leave a lot of stray terminals around.
 
 
+## Good to Develop!
 
-### Proxy from Vue to .NET Api
+At this stage everything should work in your development environment and you should be able to write code and have it proxy to your .NET 6 backend
 
-### Publish
+If you have any issues, or something is unclear or notice any problems with getting to this point, raise an issue on this repo and I will try to improve the guide!
+
+## Publish
+
+TO BE CONTINUED....
