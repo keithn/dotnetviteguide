@@ -180,25 +180,22 @@ and in Vue, in your App.vue, you can use the following template to test whether 
 
 ```vue
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 
 interface TestData {
   test: string;
 }
 
-const result = ref<TestData>({test:""})
+const result = ref<TestData>({test: ""})
 onMounted(async () => {
-  result.value = await (await fetch("/api/Test")).json();
+  result.value = await (await fetch("/api/test")).json();
 });
 
 </script>
 
 <template>
-  <div class="">Result: {{ result.test }}</div>
+  <div>Result: {{ result.test }}</div>
 </template>
-
-<style>
-</style>
 ```
 
 
