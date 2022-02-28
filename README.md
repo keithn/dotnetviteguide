@@ -140,7 +140,7 @@ I suggest nesting all API calls under the route ```/api``` which makes it easy t
 
 In the proxy specify the ```target``` as whatever the .NET project has chosen for running the API on.
 
-```secure:false``` just means the proxy won't check certs, as we don't really care for our local setup (though if you've installed the dotnet developer cert, it should be ok).
+```secure: false``` just means the proxy won't check certs, as we don't really care for our local setup (though if you've installed the dotnet developer cert, it should be ok).
 
 
 vite.config.ts (or .js if you go with JavaScript)
@@ -167,6 +167,8 @@ export default defineConfig({
   }
 })
 ```
+
+Read more on [configuring Vite](https://vitejs.dev/config/).
 
 ### ASP.NET Core minimal API and fetching from Vue
 
