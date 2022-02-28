@@ -40,7 +40,7 @@ https://github.com/dotnet/aspnetcore/blob/main/src/Middleware/Spa/SpaProxy/src/S
 
 It is pretty simple and will help you understnad what it is trying to do.
 
-The general process is that it checks to see if your front is already running, and if it isn't, it trys to launch it.
+The general process is that it checks to see if your front is already running, and if it isn't, it attempts to launch it.
 
 More annoyingly, it force kills it when your program ends.  It provides no option not to do this, and most often this is not what you want.  If you want to change your .NET 6 project, such that you need to stop it and restart it, quite often you don't want your frontend to stop and start, so if you prefer, rather than letting your dev tools launch your front end, just manually launch it yourself in a terminal, i.e.
 
@@ -50,9 +50,9 @@ However, we will setup the project to correctly run the SPA proxy (i.e., launche
 
 ## Remove the ClientApp folder
 
-Under your newly created .NET 6 project, it will have a ClientApp folder. This has all the react code in it. Delete it.
+Under your newly created .NET 6 project, it will have a ClientApp folder. This has all the React code in it. Delete it.
 
-## Create your Vue3 project with Vite
+## Create your Vue 3 project with Vite
 
 In the main project folder (where the csproj file is), run the following command to create a Vite project (or whatever tooling you want to use, as long as it makes a subfolder off the main project folder)
 
@@ -125,7 +125,7 @@ export default defineConfig({
   plugins: [vue(), mkcert()],
   server: {
     https: true
-      ... rest of config
+    //  the rest of the config...
   }
 });
 ```
@@ -160,7 +160,7 @@ export default defineConfig({
       '/api' : {
         target: 'https://localhost:7153',
         changeOrigin: true,
-        secure:false,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     } 
