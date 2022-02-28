@@ -66,14 +66,14 @@ In my case ```vue -> vue-ts```
 
 change into the directory, and type
 
-```yarn``` to install dependencies ( or let your dev tools do it if they know how )
+```yarn``` to install dependencies (or let your dev tools do it if they know how)
 
 You can treat this project like a normal Vue 3 / Vite project and set it up however you like.  We will have to configure some options for Vite which we will discuss a little later in the guide.
 
 
 ## Configure the .NET 6 project
 
-Now we have the vite project we need to make some changes to the .NET 6 project.
+Now that we have the Vite project we need to make some changes to the .NET 6 project.
 
 Choose a port you want to run your Vite Vue project on (I tend to choose a unique port per project), in this case port 3399
 
@@ -130,20 +130,20 @@ export default defineConfig({
 });
 ```
 
-## Proxy from Vue to ASP.NET Core API
+## Proxy from Vite to ASP.NET Core API
 
 Now lets setup the proxy. Use the same port you chose back when editing the project, in this case port 3399.
 
 ```strictPort``` means it won't try another port if it finds the port already in use.  
 
-I suggest nesting all api calls under the route ```/api``` which makes it easy to work out whatt things to proxy. However, if you want to, you can rewrite the routing to the backend.  You mostly don't want to do this, otherwise in production you will end up with different routes and the two projects won't marry together without some other kind of config to set the correct routes.  However, I include the rewrite in the example below for reference (currently it doesn't change the route at all), you can omit the rewrite rule altogether if you aren't doing anything fancy.
+I suggest nesting all API calls under the route ```/api``` which makes it easy to work out whatt things to proxy. However, if you want to, you can rewrite the routing to the backend.  You mostly don't want to do this, otherwise in production you will end up with different routes and the two projects won't marry together without some other kind of config to set the correct routes.  However, I include the rewrite in the example below for reference (currently it doesn't change the route at all), you can omit the rewrite rule altogether if you aren't doing anything fancy.
 
-in the proxy specify the ```target``` as whatever the .NET project has chosen for running the API on.
+In the proxy specify the ```target``` as whatever the .NET project has chosen for running the API on.
 
 ```secure:false``` just means the proxy won't check certs, as we don't really care for our local setup (though if you've installed the dotnet developer cert, it should be ok).
 
 
-vite.config.ts (or js if you go with JavaScript)
+vite.config.ts (or .js if you go with JavaScript)
 
 ```ts
 import { defineConfig } from 'vite'
