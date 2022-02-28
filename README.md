@@ -1,29 +1,26 @@
-# A Guide to getting started with .NET 6, Vite, and Vue 3
+# A guide to getting started with ASP.NET Core 6, Vite, and Vue 3
 
-This shows how to setup your environment for development.  While there are some templates for .NET 6 and Vue, it's often not really what you want.   This guide will show you how to hack your Project to get it to run your frontend how you want.   You can use the information here and make variations for whatever tooling you like to use
+This shows how to setup your environment for development.  While there are some templates for [ASP.NET Core 6](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0) and [Vue](https://vuejs.org/), it's often not really what you want.   This guide will show you how to hack your Project to get it to run your frontend how you want.   You can use the information here and make variations for whatever tooling you like to use.
 
-# Goal For this Guide
+# Goal for this guide
 
-- Setup .NET 6 Project with a Vue 3 Spa front end
-- Use Yarn as my package manager
-- Use Vite to generate the Vue project and run the development server
+- Setup a ASP.NET Core 6 project with a Vue 3 SPA front end
+- Use [Yarn](https://yarnpkg.com/) as my package manager
+- Use [Vite](https://vitejs.dev/) to generate the Vue project and run the development server
 - Customize the .NET publish to publish your Vite project
 
 # Tools I'm using
 
 While you can all kinds of different editors and tools and operating systems, for reference here is my setup
 
-- Jetbrains Rider
+- JetBrains Rider
 - Windows 11
-
-
-
 
 # Let's go!
 
-## Create .NET Project
+## Create a new ASP.NET Core project
 
-There are a number of templates that you could use, but for this guide use the react template
+There are a number of templates that you could use, but for this guide use the React template.
 
 ```dotnet new react```
 
@@ -31,33 +28,33 @@ in Rider
 
 ![image](https://user-images.githubusercontent.com/86080/144359457-c1485bff-7d36-4a57-ad55-b346ebca480f.png)
 
-This project will give you a good starting point and will setup the SPA Proxy
+This project will give you a good starting point and will setup the SPA proxy.
 
-## Small overview of SPA Proxy
+## Small overview of the ASP.NET Core SPA proxy
 
-In previous .NET versions ( before .NET 6 ) dotnet projects setup a proxy from the .NET webserver to your frontened project (whether it be Vue, React, Angular or other ).  I never used this as it was silliness, I always manually setup the proxy the other way round, so proxy from my Vue app to the .NET API backend.  Thankfully, in .NET 6 this is the approach they now also use.
+In previous .NET versions (before .NET 6) dotnet projects setup a proxy from the .NET Kestrel web server to your frontened project (whether it be Vue, React, Angular or other).  I never used this as it was silliness, I always manually setup the proxy the other way round, so proxy from my Vue app to the .NET API backend.  Thankfully, in .NET 6 this is the approach they now also use.
 
-So now, Spa Proxy isn't so much of a proxy, it is a SpaLauncher, the main guts you can find here:
+So now, SPA proxy isn't so much of a proxy, it is a SpaLauncher, the main guts you can find here:
 
 https://github.com/dotnet/aspnetcore/blob/main/src/Middleware/Spa/SpaProxy/src/SpaProxyLaunchManager.cs
 
 It is pretty simple and will help you understnad what it is trying to do.
 
-The general process is that it checks to see if your front is already running, and if it isn't, it trys to launch it.
+The general process is that it checks to see if your front is already running, and if it isn't, it attempts to launch it.
 
-More annoyingly, it force kills it when your program ends.  It provides no option not to do this, and most often this is not what you want.  If you want to change your .NET 6 project, such that you need to stop it and restart it, quite often you don't want your frontend to stop and start, so if you prefer, rather than letting your dev tools launch your front end, just manually launch it yourself in a terminal, ie
+More annoyingly, it force kills it when your program ends.  It provides no option not to do this, and most often this is not what you want.  If you want to change your .NET 6 project, such that you need to stop it and restart it, quite often you don't want your frontend to stop and start, so if you prefer, rather than letting your dev tools launch your front end, just manually launch it yourself in a terminal, i.e.
 
 ```yarn dev```
 
-However, we will setup the project to correctly run the SpaProxy (ie, launcher) properly
+However, we will setup the project to correctly run the SPA proxy (i.e., launcher) properly.
 
 ## Remove the ClientApp folder
 
-Under your newly created .NET 6 project, it will have a ClientApp folder. This has all the react code in it.  Kill it. Delete it.
+Under your newly created .NET 6 project, it will have a ClientApp folder. This has all the React code in it. Delete it.
 
-## Create your Vue3 project with Vite
+## Create your Vue 3 project with Vite
 
-In the main project folder  (where the csproj file is), run the following command to create vite project (or whatever tooling you want to use, as long as it makes a subfolder off the main project folder)
+In the main project folder (where the csproj file is), run the following command to create a Vite project (or whatever tooling you want to use, as long as it makes a subfolder off the main project folder)
 
 ```yarn create vite```
 
@@ -69,51 +66,51 @@ In my case ```vue -> vue-ts```
 
 change into the directory, and type
 
-```yarn``` to install dependencies ( or let your dev tools do it if they know how )
+```yarn``` to install dependencies (or let your dev tools do it if they know how)
 
-You can treat this project like a normal vue3 / vite project and set it up however you like.  We will have to configure some options for vite which we will discuss a little later in the guide.
+You can treat this project like a normal Vue 3 / Vite project and set it up however you like.  We will have to configure some options for Vite which we will discuss a little later in the guide.
 
 
-## Configure the .NET 6 Project
+## Configure the .NET 6 project
 
-Now we have the vite project we need to make some changes to the .NET 6 project
+Now that we have the Vite project we need to make some changes to the .NET 6 project.
 
-Choose a port you want to run your vite vue project on ( I tend to choose a unique port per project), in this case port 3399
+Choose a port you want to run your Vite Vue project on (I tend to choose a unique port per project), in this case port 3399
 
-```XML
+```xml
  <SpaProxyServerUrl>https://localhost:3399</SpaProxyServerUrl>
  ```
  
  set the launch command for dev mode, in this case ```yarn dev```
- ```XML
+ ```xml
  <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
  ```
  
  If you have a different name for your project folder rather than "ClientApp" specify it in the SpaRoot
- ```XML
+ ```xml
  <SpaRoot>ClientApp\</SpaRoot>
  ```
  
  Which should result in a project file something like below
 
 ```XML
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
-        <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-        <IsPackable>false</IsPackable>
-        <SpaRoot>ClientApp\</SpaRoot>
-        <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
-        <SpaProxyServerUrl>https://localhost:3399</SpaProxyServerUrl>
-        <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+<PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <IsPackable>false</IsPackable>
+    <SpaRoot>ClientApp\</SpaRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <SpaProxyServerUrl>https://localhost:3399</SpaProxyServerUrl>
+    <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
+    <ImplicitUsings>enable</ImplicitUsings>
+</PropertyGroup>
 ```
 
-## Certificate for your Vue Project
+## Certificate for your Vue project
 
-By default we generally want to use https for everything, so for your vite project we can use "makecert"  https://github.com/liuweiGL/vite-plugin-mkcert
+By default we generally want to use https for everything, so for your Vite project we can use "makecert" https://github.com/liuweiGL/vite-plugin-mkcert
 
 ```
 yarn add vite-plugin-mkcert -D
@@ -128,31 +125,25 @@ export default defineConfig({
   plugins: [vue(), mkcert()],
   server: {
     https: true
-      ... rest of config
+    //  the rest of the config...
   }
 });
 ```
 
+## Proxy from Vite to ASP.NET Core API
 
-
-
-
-## Proxy from Vue to .NET Api
-
-Now lets setup the proxy
-
-use the same port you choose back when editing the project, in this case 3399
+Now lets setup the proxy. Use the same port you chose back when editing the project, in this case port 3399.
 
 ```strictPort``` means it won't try another port if it finds the port already in use.  
 
-I suggest nesting all api calls under the route ```/api``` which makes it easy to work out whatt things to proxy. However, if you want to, you can rewrite the routing to the backend.  You mostly don't want to do this, otherwise in production you will end up with different routes and the two projects won't marry together without some other kind of config to set the correct routes.  However, I include the rewrite in the example below for reference ( currently it doesn't change the route at all ), you can omit the rewrite rule altogether if you aren't doing anything fancy.
+I suggest nesting all API calls under the route ```/api``` which makes it easy to work out whatt things to proxy. However, if you want to, you can rewrite the routing to the backend.  You mostly don't want to do this, otherwise in production you will end up with different routes and the two projects won't marry together without some other kind of config to set the correct routes.  However, I include the rewrite in the example below for reference (currently it doesn't change the route at all), you can omit the rewrite rule altogether if you aren't doing anything fancy.
 
-in the proxy specify the ```target``` as whatever the .NET project has chosen for running the API on.
+In the proxy specify the ```target``` as whatever the .NET project has chosen for running the API on.
 
-```secure:false``` just means the proxy won't check certs, as we don't really care for our local setup (though if you've installed the dotnet developer cert, it should be ok).
+```secure: false``` just means the proxy won't check certs, as we don't really care for our local setup (though if you've installed the dotnet developer cert, it should be ok).
 
 
-vite.config.ts   (or js if you go with js)
+vite.config.ts (or .js if you go with JavaScript)
 
 ```ts
 import { defineConfig } from 'vite'
@@ -169,7 +160,7 @@ export default defineConfig({
       '/api' : {
         target: 'https://localhost:7153',
         changeOrigin: true,
-        secure:false,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     } 
@@ -177,43 +168,42 @@ export default defineConfig({
 })
 ```
 
-### .NET Minimal API and Fetching from vue
+Read more on [configuring Vite](https://vitejs.dev/config/).
 
-In your Programs.cs add a route that returns some test data
+### ASP.NET Core minimal API and fetching from Vue
 
-```C#
+In your `Program.cs` file add a route that returns some test data
+
+```csharp
 app.MapGet("api/test", () => new { Test = "hello" });
 ```
 
-and in vue, in your App.vue, you can use the following template to test whether you can get the data :-
+and in Vue, in your App.vue, you can use the following template to test whether you can get the data :-
 
 ```vue
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 
 interface TestData {
   test: string;
 }
 
-const result = ref<TestData>({test:""})
+const result = ref<TestData>({test: ""})
 onMounted(async () => {
-  result.value = await (await fetch("/api/Test")).json();
+  result.value = await (await fetch("/api/test")).json();
 });
 
 </script>
 
 <template>
-  <div class="">Result: {{ result.test }}</div>
+  <div>Result: {{ result.test }}</div>
 </template>
-
-<style>
-</style>
 ```
 
 
 ### Windows 11 / Windows Terminal 
 
-By default ( at time of writing ), terminal does not automatically close.  However in the terminal settings you can change it so it closes on exit (no matter the exit reason)
+By default (at time of writing), the terminal does not automatically close.  However in the terminal settings you can change it so it closes on exit (no matter the exit reason)
 
 ![image](https://user-images.githubusercontent.com/86080/144360255-2ce34b66-773f-4396-aa08-ff347f5e42a7.png)
 
@@ -222,7 +212,7 @@ Otherwise it will leave a lot of stray terminals around.
 
 ## Good to Develop!
 
-At this stage everything should work in your development environment and you should be able to write code and have it proxy to your .NET 6 backend
+At this stage everything should work in your development environment and you should be able to write code and have it proxy to your ASP.NET Core 6 backend.
 
 If you have any issues, or something is unclear or notice any problems with getting to this point, raise an issue on this repo and I will try to improve the guide!
 
