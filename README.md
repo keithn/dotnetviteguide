@@ -1,6 +1,6 @@
 # A guide to getting started with ASP.NET Core 6, Vite, and Vue 3
 
-This shows how to setup your environment for development.  While there are some templates for [ASP.NET Core 6](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0) and [Vue](https://vuejs.org/), it's often not really what you want.   This guide will show you how to hack your Project to get it to run your frontend how you want.   You can use the information here and make variations for whatever tooling you like to use.
+This guide shows how to setup your environment for development.  While there are some templates for [ASP.NET Core 6](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0) and [Vue](https://vuejs.org/), it's often not really what you want.  This guide will show you how to hack your project to get it to run your frontend how you want.  You can use the information here and make variations for whatever tooling you like to use.
 
 # Goal for this guide
 
@@ -21,9 +21,9 @@ While you can all kinds of different editors and tools and operating systems, fo
 ## Create a new ASP.NET Core project
 
 There are a number of templates that you could use, but for this guide use the React template.
-
-```dotnet new react```
-
+```
+dotnet new react
+```
 in Rider
 
 ![image](https://user-images.githubusercontent.com/86080/144359457-c1485bff-7d36-4a57-ad55-b346ebca480f.png)
@@ -32,56 +32,64 @@ This project will give you a good starting point and will setup the SPA proxy.
 
 ## Small overview of the ASP.NET Core SPA proxy
 
-In previous .NET versions (before .NET 6) dotnet projects setup a proxy from the .NET Kestrel web server to your frontened project (whether it be Vue, React, Angular or other).  I never used this as it was silliness, I always manually setup the proxy the other way round, so proxy from my Vue app to the .NET API backend.  Thankfully, in .NET 6 this is the approach they now also use.
+In previous .NET versions (before .NET 6) dotnet projects setup a development proxy from the .NET [Kestrel](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-6.0) web server to your frontened project (whether it be Vue, React, Angular or other).  I never used this as it was silliness, I always manually setup the proxy the other way round, so proxy from my Vue app to the .NET API backend.  Thankfully, in .NET 6 this is the approach they now also use.
 
-So now, SPA proxy isn't so much of a proxy, it is a SpaLauncher, the main guts you can find here:
+So now, the SPA development proxy isn't so much of a proxy, it is more of a SPA launcher, the main guts you can find here:
 
 https://github.com/dotnet/aspnetcore/blob/main/src/Middleware/Spa/SpaProxy/src/SpaProxyLaunchManager.cs
 
-It is pretty simple and will help you understnad what it is trying to do.
+It is pretty simple and will help you understand what it is trying to do.
 
 The general process is that it checks to see if your front is already running, and if it isn't, it attempts to launch it.
 
-More annoyingly, it force kills it when your program ends.  It provides no option not to do this, and most often this is not what you want.  If you want to change your .NET 6 project, such that you need to stop it and restart it, quite often you don't want your frontend to stop and start, so if you prefer, rather than letting your dev tools launch your front end, just manually launch it yourself in a terminal, i.e.
+More annoyingly, it force kills it when your program ends.  It provides no option not to do this, and most often this is not what you want.  If you want to change your .NET project, such that you need to stop it and restart it, quite often you don't want your frontend to stop and start, so if you prefer, rather than letting your dev tools launch your front end, just manually launch it yourself in a terminal, i.e.
 
-```yarn dev```
+```
+yarn dev
+```
 
-However, we will setup the project to correctly run the SPA proxy (i.e., launcher) properly.
+However, we will setup the project to correctly run the SPA development proxy (i.e., launcher) properly.
 
 ## Remove the ClientApp folder
 
-Under your newly created .NET 6 project, it will have a ClientApp folder. This has all the React code in it. Delete it.
+Under your newly created .NET project, it will have a ClientApp folder. This has all the React code in it. Delete it.
 
 ## Create your Vue 3 project with Vite
 
 In the main project folder (where the csproj file is), run the following command to create a Vite project (or whatever tooling you want to use, as long as it makes a subfolder off the main project folder)
 
-```yarn create vite```
+If you use yarn:
+```
+yarn create vite
+```
+
+Or if you use npm:
+```
+npm create vite@latest
+```
 
 It will ask you for the project name, this will be the name of the folder it creates, choose something you like, or you can call it ClientApp, which means you need to configure a bit less later.
 
 Select the options you want. 
 
-In my case ```vue -> vue-ts```
+In my case `vue -> vue-ts`.
 
-change into the directory, and type
-
-```yarn``` to install dependencies (or let your dev tools do it if they know how)
+change into the directory, and type `yarn` to install dependencies (or let your dev tools do it if they know how)
 
 You can treat this project like a normal Vue 3 / Vite project and set it up however you like.  We will have to configure some options for Vite which we will discuss a little later in the guide.
 
 
-## Configure the .NET 6 project
+## Configure the .NET project
 
-Now that we have the Vite project we need to make some changes to the .NET 6 project.
+Now that we have the Vite project we need to make some changes to the .NET project.
 
-Choose a port you want to run your Vite Vue project on (I tend to choose a unique port per project), in this case port 3399
+Choose a port you want to run your Vite Vue project on (I tend to choose a unique port per project), in this case port 3399. The default port used by Vite is port 3000.
 
 ```xml
  <SpaProxyServerUrl>https://localhost:3399</SpaProxyServerUrl>
  ```
  
- set the launch command for dev mode, in this case ```yarn dev```
+ set the launch command for dev mode, in this case `yarn dev` (or `npm run dev` if you use npm)
  ```xml
  <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
  ```
@@ -93,7 +101,7 @@ Choose a port you want to run your Vite Vue project on (I tend to choose a uniqu
  
  Which should result in a project file something like below
 
-```XML
+```xml
 <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -118,7 +126,7 @@ yarn add vite-plugin-mkcert -D
 
 and configure it like so
 
-```
+```ts
 import mkcert from 'vite-plugin-mkcert'
 
 export default defineConfig({
@@ -132,15 +140,15 @@ export default defineConfig({
 
 ## Proxy from Vite to ASP.NET Core API
 
-Now lets setup the proxy. Use the same port you chose back when editing the project, in this case port 3399.
+Now lets setup the Vite proxy. Use the same port you chose back when editing the project, in this case port 3399.
 
-```strictPort``` means it won't try another port if it finds the port already in use.  
+`strictPort` means it won't try another port if it finds that the port is already in use.  
 
-I suggest nesting all API calls under the route ```/api``` which makes it easy to work out whatt things to proxy. However, if you want to, you can rewrite the routing to the backend.  You mostly don't want to do this, otherwise in production you will end up with different routes and the two projects won't marry together without some other kind of config to set the correct routes.  However, I include the rewrite in the example below for reference (currently it doesn't change the route at all), you can omit the rewrite rule altogether if you aren't doing anything fancy.
+I suggest nesting all API calls under the route `/api` which makes it easy to work out what things to proxy. However, if you want to, you can rewrite the routing to the backend.  You mostly don't want to do this, otherwise in production you will end up with different routes and the two projects won't marry together without some other kind of config to set the correct routes.  However, I include the rewrite in the example below for reference (currently it doesn't change the route at all), you can omit the rewrite rule altogether if you aren't doing anything fancy.
 
-In the proxy specify the ```target``` as whatever the .NET project has chosen for running the API on.
+In the proxy specify the `target` as whatever the .NET project has chosen for running the API on.
 
-```secure: false``` just means the proxy won't check certs, as we don't really care for our local setup (though if you've installed the dotnet developer cert, it should be ok).
+`secure: false` just means the proxy won't check certificates, as we don't really care for our local setup (though if you've installed the dotnet developer certificate, it should be ok).
 
 
 vite.config.ts (or .js if you go with JavaScript)
@@ -178,7 +186,7 @@ In your `Program.cs` file add a route that returns some test data
 app.MapGet("api/test", () => new { Test = "hello" });
 ```
 
-and in Vue, in your App.vue, you can use the following template to test whether you can get the data :-
+and in Vue, in your `App.vue` file, you can use the following template to test whether you can fetch the data :-
 
 ```vue
 <script setup lang="ts">
@@ -203,7 +211,7 @@ onMounted(async () => {
 
 ### Windows 11 / Windows Terminal 
 
-By default (at time of writing), the terminal does not automatically close.  However in the terminal settings you can change it so it closes on exit (no matter the exit reason)
+By default (at time of writing), the Windows Terminal does not automatically close.  However in the terminal settings you can change it so it closes on exit (no matter the exit reason)
 
 ![image](https://user-images.githubusercontent.com/86080/144360255-2ce34b66-773f-4396-aa08-ff347f5e42a7.png)
 
@@ -212,7 +220,7 @@ Otherwise it will leave a lot of stray terminals around.
 
 ## Good to Develop!
 
-At this stage everything should work in your development environment and you should be able to write code and have it proxy to your ASP.NET Core 6 backend.
+At this stage everything should work in your development environment and you should be able to write code and have it proxy to your ASP.NET Core backend.
 
 If you have any issues, or something is unclear or notice any problems with getting to this point, raise an issue on this repo and I will try to improve the guide!
 
