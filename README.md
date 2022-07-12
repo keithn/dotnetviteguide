@@ -44,8 +44,13 @@ The general process is that it checks to see if your front is already running, a
 
 More annoyingly, it force kills it when your program ends.  It provides no option not to do this, and most often this is not what you want.  If you want to change your .NET project, such that you need to stop it and restart it, quite often you don't want your frontend to stop and start, so if you prefer, rather than letting your dev tools launch your front end, just manually launch it yourself in a terminal, i.e.
 
+If you use yarn:
 ```
 yarn dev
+```
+If you use npm:
+```
+npm run dev
 ```
 
 However, we will setup the project to correctly run the SPA development proxy (i.e., launcher) properly.
@@ -74,7 +79,7 @@ Select the options you want.
 
 In my case `vue -> vue-ts`.
 
-change into the directory, and type `yarn` to install dependencies (or let your dev tools do it if they know how)
+change into the directory, and type `yarn` to install dependencies or `npm install` if you use npm (or let your dev tools do it if they know how)
 
 You can treat this project like a normal Vue 3 / Vite project and set it up however you like.  We will have to configure some options for Vite which we will discuss a little later in the guide.
 
@@ -86,20 +91,20 @@ Now that we have the Vite project we need to make some changes to the .NET proje
 Choose a port you want to run your Vite Vue project on (I tend to choose a unique port per project), in this case port 3399. The default port used by Vite is port 3000.
 
 ```xml
- <SpaProxyServerUrl>https://localhost:3399</SpaProxyServerUrl>
- ```
+<SpaProxyServerUrl>https://localhost:3399</SpaProxyServerUrl>
+```
  
- set the launch command for dev mode, in this case `yarn dev` (or `npm run dev` if you use npm)
- ```xml
- <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
- ```
+set the launch command for dev mode, in this case `yarn dev` (or `npm run dev` if you use npm)
+```xml
+<SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
+```
  
- If you have a different name for your project folder rather than "ClientApp" specify it in the SpaRoot
- ```xml
- <SpaRoot>ClientApp\</SpaRoot>
- ```
+If you have a different name for your project folder rather than "ClientApp" specify it in the SpaRoot
+```xml
+<SpaRoot>ClientApp\</SpaRoot>
+```
  
- Which should result in a project file something like below
+Which should result in a project file something like below
 
 ```xml
 <PropertyGroup>
@@ -225,5 +230,14 @@ At this stage everything should work in your development environment and you sho
 If you have any issues, or something is unclear or notice any problems with getting to this point, raise an issue on this repo and I will try to improve the guide!
 
 ## Publish
+
+In the `.csproj` file change:
+```xml
+<DistFiles Include="$(SpaRoot)build\**" />
+```
+to:
+```xml
+<DistFiles Include="$(SpaRoot)dist\**" />
+```
 
 TO BE CONTINUED....
