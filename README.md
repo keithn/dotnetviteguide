@@ -125,8 +125,13 @@ Which should result in a project file something like below
 
 By default we generally want to use https for everything, so for your Vite project we can use "makecert" https://github.com/liuweiGL/vite-plugin-mkcert
 
+If you use yarn:
 ```
 yarn add vite-plugin-mkcert -D
+```
+Or if you use npm:
+```
+npm install --save-dev vite-plugin-mkcert
 ```
 
 and configure it like so
